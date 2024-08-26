@@ -1,0 +1,92 @@
+﻿@page "/category/create"
+@page "/category/update/{id:int}"
+@using BoiSell.Core.Models
+@using BoiSell.Service.Services.Contracts
+
+
+@inject ICategoryService _categoryService
+@inject NavigationManager _navigationManager
+
+<div class="container-fluid">
+    <div class="row pt-5">
+        <div class="card card-info col-md-8 mx-auto p-0">
+            <EditForm Model="@Category" FormName="CategoryUpsertForm" OnValidSubmit="@UpsertCategory">
+                <DataAnnotationsValidator />
+
+                <div class="card-header bg-info">
+                    <div class="d-flex justify-content-between">
+                        <div>@(Id > 0 ? "Update" : "Create") Category</div>
+                        <button type="button" class="btn btn-outline-dark btn-sm text-white" @onclick="GoBack">Back To List</button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="form-group row">
+                        <label class="col-sm-3 col-form-label col-form-label-sm">Category Name<span class="text-danger">*</span></label>
+                        <InputText @bind-Value="Category.Name" class="col-sm-8 form-control form-control-sm" placeholder="Enter Category Name" required />
+                        <ValidationMessage For="@(()=> Category.Name)" />
+                    </div>
+                </div>
+                <div class="card-footer pb-2">
+                    <div class="text-right">
+
+                        <button type="submit" class="col-sm-2 mr-2 btn btn-outline-success btn-sm" disabled="@IsProcessing">@(Id > 0 ? "Update" : "Create")</button>
+                        <button type="button" class="col-sm-2 btn btn-outline-dark btn-sm" @onclick="GoBack">Back</button>
+
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    [SupplyParameterFromForm]
+    private Category Category { get; set; } = new Category();
+
+    private bool IsProcessing { get; set; } = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadCategory();
+            IsProcessing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadCategory()
+    {
+        if (Id > 0)
+        {
+            Category = await _categoryService.GetByIdAsync(u => u.Id == Id);
+        }
+    }
+
+    private async Task UpsertCategory()
+    {
+        IsProcessing = true;
+        if (Category.Id == 0)
+        {
+            //Create
+            await _categoryService.AddAsync(Category);
+        }
+        else
+        {
+            //Update
+            await _categoryService.UpdateAsync(Category);
+        }
+        IsProcessing = false;
+
+        _navigationManager.NavigateTo("category");
+
+    }
+
+    private async Task GoBack()
+    {
+        _navigationManager.NavigateTo("category");
+    }
+
+}

@@ -1,0 +1,115 @@
+﻿@page "/Category"
+@using BoiSell.Core.Models
+@using BoiSell.Service.Services.Contracts
+@using BoiSell.Web.Components.Pages
+
+
+@inject ICategoryService _categoryService
+@inject NavigationManager _navigationManager
+
+
+
+
+<div class="container-fluid">
+    <div class="card card-info">
+        <div class="card-header d-flex align-items-center bg-info">
+            <p class="mr-auto">Category</p>
+            <div class="card-tools ms-auto">
+                <button type="button" class="btn btn-sm btn-primary" @onclick="NavigateToAddForm">
+                    <i class="bi bi-plus"></i> Add
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="overflow-auto">
+
+                <div class="table-responsive-md">
+                    <table class="table table-bordered text-center" id="tb">
+                        <thead class="table-info">
+                            <tr>
+                                <th>Category Id</th>
+                                <th>Category Name</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Categories.Any())
+                            {
+                                <tr>
+                                    <td colspan="5">Loading..</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var item in Categories)
+                                {
+                                    <tr>
+                                        <td>
+                                            @item.Id
+                                        </td>
+                                        <td>
+                                            @item.Name
+                                        </td>
+                                        
+                                        <td>
+                                            <button class="btn btn-info btn-sm" @onclick="@(e => NavigateToEditForm(item.Id))">
+                                                <i class="bi bi-pen-fill"></i>
+                                            </button>
+                                            <button class="btn btn-danger btn-sm">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                        <tfoot>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+@code {
+    @code {
+        public bool IsProcessing { get; set; } = true;
+
+        private IEnumerable<Category> Categories { get; set; } = new List<Category>();
+
+        private int DeleteCategoryId { get; set; } = 0;
+
+        protected override async Task OnInitializedAsync()
+        {
+
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                await LoadCategories();
+                IsProcessing = false;
+                StateHasChanged();
+            }
+        }
+
+        private async Task LoadCategories()
+        {
+            Categories = await _categoryService.GetAllAsync();
+        }
+
+        private void NavigateToAddForm()
+        {
+            _navigationManager.NavigateTo("Category/Create");
+        }
+
+        private void NavigateToEditForm(int id)
+        {
+            _navigationManager.NavigateTo("Category/Update/" + id);
+        }
+    }
+}

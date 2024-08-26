@@ -1,3 +1,6 @@
+using BoiSell.Repository.Repositories.Core;
+using BoiSell.Service.Services.Contracts;
+using BoiSell.Service.Services.Implementations;
 using BoiSell.Web.Components;
 using BoiSell.Web.Components.Account;
 using BoiSell.Web.Data;
@@ -15,6 +18,9 @@ builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
 builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 builder.Services.AddAuthentication(options =>
     {

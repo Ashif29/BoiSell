@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35122.118
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoiSell.Web", "BoiSell.Web\BoiSell.Web.csproj", "{7A5B4D5B-1EB8-49D6-84EF-B410E9C93477}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoiSell.Web", "BoiSell.Web\BoiSell.Web.csproj", "{7A5B4D5B-1EB8-49D6-84EF-B410E9C93477}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoiSell.Core", "BoiSell.Core\BoiSell.Core.csproj", "{EA97BA26-3844-4609-935E-E6E6AC12A1DC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoiSell.Core", "BoiSell.Core\BoiSell.Core.csproj", "{EA97BA26-3844-4609-935E-E6E6AC12A1DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoiSell.Repository", "BoiSell.Repository\BoiSell.Repository.csproj", "{542F44BD-1623-46CB-967D-095D6D23FBC4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoiSell.Repository", "BoiSell.Repository\BoiSell.Repository.csproj", "{542F44BD-1623-46CB-967D-095D6D23FBC4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BoiSell.Service", "BoiSell.Service\BoiSell.Service.csproj", "{9546C9B6-8CCF-4C66-BB27-53113D61A11A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BoiSell.Service", "BoiSell.Service\BoiSell.Service.csproj", "{9546C9B6-8CCF-4C66-BB27-53113D61A11A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
