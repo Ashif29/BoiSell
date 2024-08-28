@@ -52,7 +52,8 @@ namespace BoiSell.Web.Data
                     Language = "English",
                     CategoryId = 1,
                     ImageUrl = "/images/books/AtomicHabits.jpg",
-                    Status = BookStatus.Available
+                    Status = BookStatus.Available,
+                    CreatedAt = DateTime.Now
                 },
                 new Book
                 {
@@ -70,7 +71,8 @@ namespace BoiSell.Web.Data
                     Language = "English",
                     CategoryId = 2,
                     ImageUrl = "/images/books/BlueChristanity.jpg",
-                    Status = BookStatus.Available
+                    Status = BookStatus.Available,
+                    CreatedAt = DateTime.Now
                 },
                 new Book
                 {
@@ -88,11 +90,12 @@ namespace BoiSell.Web.Data
                     Language = "English",
                     CategoryId = 3,
                     ImageUrl = "/images/books/Celopatra.jpg",
-                    Status = BookStatus.Available
+                    Status = BookStatus.Available,
+                    CreatedAt = DateTime.Now
                 },
                 new Book
                 {
-                    Id = 4, 
+                    Id = 4,
                     Title = "Twilight",
                     Author = "Stephenie Meyer",
                     ISBN = Guid.NewGuid().ToString(),
@@ -106,7 +109,8 @@ namespace BoiSell.Web.Data
                     Language = "English",
                     CategoryId = 4,
                     ImageUrl = "/images/books/twilight.jpg",
-                    Status = BookStatus.Available
+                    Status = BookStatus.Available,
+                    CreatedAt = DateTime.Now
                 }
             );
         }

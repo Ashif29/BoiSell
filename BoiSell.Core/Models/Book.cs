@@ -48,6 +48,9 @@ namespace BoiSell.Core.Models
 
         public BookStatus Status { get; set; } = BookStatus.Available;
 
+        public DateTime CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }  
+
     }
 
 }
