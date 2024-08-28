@@ -56,6 +56,20 @@ namespace BoiSell.Repository.Repositories.Core
             return await query.FirstOrDefaultAsync();
         }
 
+        public async Task<bool> IsExistsAsync(Expression<Func<T, bool>> filter, string? includeProperties = null)
+        {
+            IQueryable<T> query = dbSet;
+            if (!string.IsNullOrEmpty(includeProperties))
+            {
+                foreach (var includeProp in includeProperties.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
+                {
+                    query = query.Include(includeProp);
+                }
+            }
+            query = query.Where(filter);
+            return await query.AnyAsync();
+        }
+
         public async Task UpdateAsync(T entity)
         {
             await Task.Run(() =>

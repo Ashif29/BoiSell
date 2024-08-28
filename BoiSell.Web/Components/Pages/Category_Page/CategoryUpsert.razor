@@ -44,6 +44,8 @@
     [Parameter]
     public int Id { get; set; }
 
+    private Category CategoryTemp { get; set; } = new Category();
+
     [SupplyParameterFromForm]
     private Category Category { get; set; } = new Category();
 
@@ -64,23 +66,44 @@
         if (Id > 0)
         {
             Category = await _categoryService.GetByIdAsync(u => u.Id == Id);
+
+            CategoryTemp.Id = Category.Id;
+            CategoryTemp.Name = Category.Name;
         }
     }
 
     private async Task UpsertCategory()
     {
         IsProcessing = true;
+        var result = await _categoryService.IsExistsAsync(u => u.Name.ToLower() == Category.Name.ToLower());
+
         if (Category.Id == 0)
         {
             //Create
-            await _categoryService.AddAsync(Category);
-            await _JS.ToastrSuccess("Category Created Successfully");
+            if (result)
+            {
+                await _JS.ToastrError("Category Allready Exists!");
+            }
+            else
+            {
+                await _categoryService.AddAsync(Category);
+                await _JS.ToastrSuccess("Category Created Successfully");
+            }
         }
         else
         {
             //Update
-            await _categoryService.UpdateAsync(Category);
-            await _JS.ToastrSuccess("Category Updated Successfully");
+            if (result)
+            {
+                Category.Id = CategoryTemp.Id;
+                Category.Name = CategoryTemp.Name; // Restoring Previous Category Name.
+                await _JS.ToastrError("Category Allready Exists!");
+            }
+            else
+            {
+                await _categoryService.UpdateAsync(Category);
+                await _JS.ToastrSuccess("Category Updated Successfully");
+            }
         }
         IsProcessing = false;
 

@@ -20,7 +20,11 @@ namespace BoiSell.Service.Services.Implementations
         }
         public async Task AddAsync(Category category)
         {
-            await _unitOfWork.CategoryRepository.AddAsync(category);
+            var categoryEntry = new Category()
+            {
+                Name = category.Name,
+            };
+            await _unitOfWork.CategoryRepository.AddAsync(categoryEntry);
             await _unitOfWork.CompleteAsync();
         }
 
@@ -40,9 +44,18 @@ namespace BoiSell.Service.Services.Implementations
             return await _unitOfWork.CategoryRepository.GetByIdAsync(filter, includeProperties);
         }
 
+        public async Task<bool> IsExistsAsync(Expression<Func<Category, bool>> filter, string? includeProperties = null)
+        {
+            return await _unitOfWork.CategoryRepository.IsExistsAsync(filter, includeProperties);
+        }
+
         public async Task UpdateAsync(Category category)
         {
-            await _unitOfWork.CategoryRepository.UpdateAsync(category);
+            var categoryEntry = new Category()
+            {
+                Name = category.Name,
+            };
+            await _unitOfWork.CategoryRepository.UpdateAsync(categoryEntry);
             await _unitOfWork.CompleteAsync();
         }
     }

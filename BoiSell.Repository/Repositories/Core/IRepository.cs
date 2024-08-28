@@ -11,6 +11,7 @@ namespace BoiSell.Repository.Repositories.Core
     {
         Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, string? includeProperties = null);
         Task<T> GetByIdAsync(Expression<Func<T, bool>> filter, string? includeProperties = null);
+        Task<bool> IsExistsAsync(Expression<Func<T, bool>> filter, string? includeProperties = null);
         Task AddAsync(T entity);
         Task UpdateAsync(T entity);
         Task DeleteAsync(T entity);
