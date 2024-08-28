@@ -11,6 +11,7 @@ namespace BoiSell.Repository.Repositories.Core
     {
 
         ICategoryRepository CategoryRepository { get; }
+        IBookRepository BookRepository { get; }
         Task<bool> CompleteAsync();
     }
 }

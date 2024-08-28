@@ -13,11 +13,13 @@ namespace BoiSell.Repository.Repositories.Core
     {
         private readonly ApplicationDbContext _db;
         public ICategoryRepository CategoryRepository { get; private set; }
+        public IBookRepository BookRepository { get; private set; }
 
         public UnitOfWork(ApplicationDbContext db)
         {
             _db = db;
             this.CategoryRepository = new CategoryRepository(_db);
+            this.BookRepository = new BookRepository(_db);
         }
 
         public async Task<bool> CompleteAsync()
