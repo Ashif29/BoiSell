@@ -1,0 +1,170 @@
+﻿@page "/Book"
+@using BoiSell.Core.Models
+@using BoiSell.Service.Extentions
+@using BoiSell.Service.Services.Contracts
+@using BoiSell.Web.Components.Pages
+
+
+@inject IBookService _bookService
+@inject NavigationManager _navigationManager
+@inject IJSRuntime _JS
+
+<_BsModal OnModalConfirmation="ConfirmDeleteClick"
+          Title="Are you sure to delete this Book?"
+          ButtonBootstrapStyle="btn-danger"
+          ButtonText="Delete">
+</_BsModal>
+
+
+<div class="container-fluid">
+    <div class="card card-info">
+        <div class="card-header d-flex align-items-center bg-info">
+            <p class="mr-auto">Book List</p>
+            <div class="card-tools ms-auto">
+                <button type="button" class="btn btn-sm btn-primary" @onclick="NavigateToAddForm">
+                    <i class="bi bi-plus"></i> Add
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="overflow-auto">
+
+                <div class="table-responsive-md">
+                    <table class="table table-bordered text-center" id="tb">
+                        <thead class="table-info">
+                            <tr>
+                                <th>Id</th>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>Price</th>
+                                <th>Category</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!Books.Any())
+                            {
+                                <tr>
+                                    <td colspan="5">Loading..</td>
+                                </tr>
+                            }
+                            else
+                            {
+                                @foreach (var item in Books)
+                                {
+                                    <tr>
+                                        <td>
+                                            @item.Id
+                                        </td>
+                                        <td>
+                                            @item.Title
+                                        </td>
+                                        <td>
+                                            @item.Author
+                                        </td>
+                                        <td>
+                                            @item.Price
+                                        </td>
+                                        <td>
+                                            @item.CategoryId
+                                        </td>
+
+                                        <td>
+                                            <button class="btn btn-info btn-sm">
+                                                <i class="bi bi-eye-fill"></i>
+                                            </button>
+                                            <button class="btn btn-info btn-sm" @onclick="@(e => NavigateToEditForm(item.Id))">
+                                                <i class="bi bi-pen-fill"></i>
+                                            </button>
+                                            <button class="btn btn-danger btn-sm" @onclick="() => HandleDelete(item.Id)">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                        <tfoot>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+@code {
+    @code {
+        public bool IsProcessing { get; set; } = true;
+
+        private IEnumerable<Book> Books { get; set; } = new List<Book>();
+
+        private int DeleteBookId { get; set; } = 0;
+
+        protected override async Task OnInitializedAsync()
+        {
+
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                await LoadBooks();
+                IsProcessing = false;
+                StateHasChanged();
+            }
+        }
+
+        private async Task LoadBooks()
+        {
+            Books = await _bookService.GetAllAsync();
+        }
+
+        private void NavigateToAddForm()
+        {
+            _navigationManager.NavigateTo("Book/Create");
+        }
+
+        private void NavigateToEditForm(int id)
+        {
+            _navigationManager.NavigateTo("Book/Update/" + id);
+        }
+
+
+        private void HandleDelete(int id)
+        {
+            DeleteBookId = id;
+            _JS.InvokeVoidAsync("ShowConfirmationModal");
+        }
+
+        private async Task ConfirmDeleteClick(bool IsConfirmed)
+        {
+            IsProcessing = true;
+            await _JS.InvokeVoidAsync("HideConfirmationModal");
+            if (IsConfirmed == true && DeleteBookId > 0)
+            {
+                var book = await _bookService.GetByIdAsync(u => u.Id == DeleteBookId);
+
+                if (book != null)
+                {
+                    var result = await _bookService.DeleteAsync(book);
+
+                    if (result == true)
+                    {
+                        await _JS.ToastrSuccess("Book Deleted Successfully.");
+                    }
+                    else
+                    {
+                        await _JS.ToastrError("Error Encountered While Deleting.");
+                    }
+                }
+                await LoadBooks();
+            }
+            DeleteBookId = 0;
+            IsProcessing = false;
+        }
+    }
+}
