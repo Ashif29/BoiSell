@@ -21,7 +21,7 @@
                 <div class="card-header bg-info">
                     <div class="d-flex justify-content-between">
                         <div>@(Book.Id > 0 ? "Update" : "Create") Book</div>
-                        <button type="button" class="btn btn-outline-dark btn-sm text-white" @onclick="GoBack">Back To List</button>
+                        <button type="button" class="btn btn-outline-dark btn-sm text-white" @onclick="() => GoBack(Book.Id)">Back To List</button>
                     </div>
                 </div>
 
@@ -121,16 +121,20 @@
 
                         <div class="col-sm-6">
                             <div class="d-flex align-items-start">
-                                <div class="flex-grow-1">
-                                    <label for="customFile" class="text-success col-form-label col-form-label-sm">Upload Image</label>
-                                    <InputFile id="customFile" OnChange="LoadFiles" class="form-control form-control-sm" accept="image/x-png,image/jpeg" />
-                                </div>
+                                @if (Book.ImageUrl == null)
+                                {
+                                    <div class="flex-grow-1">
+                                        <label for="customFile" class="text-success col-form-label col-form-label-sm">Upload Image</label>
+                                        <InputFile id="customFile" OnChange="LoadFiles" class="form-control form-control-sm" accept="image/x-png,image/jpeg" />
+                                    </div>
+                                }
+                                
                                 @if (Book.ImageUrl != null)
                                 {
                                     <div class="ms-3">
                                         <img src="@Book.ImageUrl" alt="Uploaded Image" class="img-thumbnail" style="max-width: 100px;">
                                         <div class="pt-2">
-                                            <button type="button" class="btn btn-outline-danger btn-sm">
+                                            <button type="button" class="btn btn-outline-danger btn-sm" @onclick="DeleteImage">
                                                 <i class="bi bi-trash"></i> Remove
                                             </button>
                                         </div>
@@ -145,7 +149,7 @@
                 <div class="card-footer pb-2">
                     <div class="text-right">
                         <button type="submit" class="col-sm-2 mr-2 btn btn-outline-success btn-sm" disabled="@IsProcessing">@(Book.Id > 0 ? "Update" : "Create")</button>
-                        <button type="button" class="col-sm-2 btn btn-outline-dark btn-sm" @onclick="GoBack">Back</button>
+                        <button type="button" class="col-sm-2 btn btn-outline-dark btn-sm" @onclick="() => GoBack(Book.Id)">Back</button>
                     </div>
                 </div>
             </EditForm>
@@ -174,7 +178,7 @@
 
     protected override Task OnInitializedAsync()
     {
-        _directoryPath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "product");
+        _directoryPath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "books");
         return base.OnInitializedAsync();
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -285,13 +289,31 @@
 
         await using FileStream fileStream = new(path, FileMode.Create);
         await file.OpenReadStream(file.Size).CopyToAsync(fileStream);
-        Book.ImageUrl = $"/images/product/{newFileName}";
+        Book.ImageUrl = $"/images/books/{newFileName}";
 
         IsProcessing = false;
     }
 
-    private async Task GoBack()
+    private async Task GoBack(int id)
     {
+        if (id == 0) DeleteImage();
         _navigationManager.NavigateTo("book");
+    }
+    void DeleteImage()
+    {
+        if (Book.ImageUrl == null)
+            return;
+
+        var fileToDelete = Book.ImageUrl.Split('/').Reverse().First();
+
+        var filePathToDeleteImage = Path.Combine(_directoryPath, fileToDelete);
+
+        if (!File.Exists(filePathToDeleteImage))
+            return;
+
+        File.Delete(filePathToDeleteImage);
+
+        Book.ImageUrl = null;
+        return;
     }
 }
