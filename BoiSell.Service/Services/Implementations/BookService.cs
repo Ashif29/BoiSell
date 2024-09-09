@@ -66,26 +66,9 @@ namespace BoiSell.Service.Services.Implementations
 
         public async Task UpdateAsync(Book book)
         {
-            var bookEntry = new Book()
-            {
-                Title = book.Title,
-                Author = book.Author,
-                ISBN = book.ISBN,
-                Description = book.Description,
-                Price = book.Price,
-                Discount = book.Discount,
-                SpecialTag = book.SpecialTag,
-                Publisher = book.Publisher,
-                PublishedDate = book.PublishedDate,
-                Pages = book.Pages,
-                Language = book.Language,
-                CategoryId = book.CategoryId,
-                ImageUrl = book.ImageUrl,
-                Status = book.Status,
-                CreatedAt = DateTime.Now,
-                UpdatedAt = DateTime.Now
-            };
-            await _unitOfWork.BookRepository.UpdateAsync(bookEntry);
+            
+            book.UpdatedAt = DateTime.Now;
+            await _unitOfWork.BookRepository.UpdateAsync(book);
             await _unitOfWork.CompleteAsync();
         }
     }

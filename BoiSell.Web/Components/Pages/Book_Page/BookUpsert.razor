@@ -1,0 +1,297 @@
+﻿@page "/book/create"
+@page "/book/update/{Id:int}"
+@using BoiSell.Core.Enums
+@using BoiSell.Core.Models
+@using BoiSell.Service.Extentions
+@using BoiSell.Service.Services.Contracts
+
+@inject IBookService _bookService
+@inject NavigationManager _navigationManager
+@inject IJSRuntime _JS
+@inject ICategoryService _categoryService
+@inject IWebHostEnvironment _webHostEnvironment
+
+
+<div class="container-fluid">
+    <div class="row pt-2">
+        <div class="card card-info col-md-11 mx-auto p-0">
+            <EditForm Model="@Book" FormName="BookUpsertForm" OnValidSubmit="@UpsertBook">
+                <DataAnnotationsValidator />
+
+                <div class="card-header bg-info">
+                    <div class="d-flex justify-content-between">
+                        <div>@(Book.Id > 0 ? "Update" : "Create") Book</div>
+                        <button type="button" class="btn btn-outline-dark btn-sm text-white" @onclick="GoBack">Back To List</button>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <!-- 1st row: Title (3 col), Price (1 col), Discount (1 col) -->
+                    <div class="form-group row">
+                        <div class="col-sm-6">
+                            <label class="col-form-label col-form-label-sm text-success">Title<span class="text-danger">*</span></label>
+                            <InputText @bind-Value="Book.Title" class="form-control form-control-sm" placeholder="Enter Title" required />
+                            <ValidationMessage For="@(() => Book.Title)" />
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-success col-form-label col-form-label-sm">Price<span class="text-danger">*</span></label>
+                            <InputNumber @bind-Value="Book.Price" class="form-control form-control-sm" placeholder="Enter Price" required />
+                            <ValidationMessage For="@(() => Book.Price)" />
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-success col-form-label col-form-label-sm">Discount</label>
+                            <InputNumber @bind-Value="Book.Discount" class="form-control form-control-sm" placeholder="Enter Discount" />
+                        </div>
+                    </div>
+
+                    <!-- 2nd row: Author (3 col), Special Tag (1 col), Pages (1 col) -->
+                    <div class="form-group row">
+                        <div class="col-sm-6">
+                            <label class="text-success col-form-label col-form-label-sm">Author<span class="text-danger">*</span></label>
+                            <InputText @bind-Value="Book.Author" class="form-control form-control-sm" placeholder="Enter Author" required />
+                            <ValidationMessage For="@(() => Book.Author)" />
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-success col-form-label col-form-label-sm">Special Tag</label>
+                            <InputText @bind-Value="Book.SpecialTag" class="form-control form-control-sm" placeholder="Enter Special Tag" />
+                        </div>
+                        <div class="col-sm-3">
+                            <label class="text-success col-form-label col-form-label-sm">Pages</label>
+                            <InputNumber @bind-Value="Book.Pages" class="form-control form-control-sm" placeholder="Enter Number of Pages" />
+                        </div>
+                    </div>
+
+                    <!-- 3rd row: Category (3 col), Publisher (1 col), Published Date (1 col) -->
+                    <div class="form-group row">
+                        <div class="col-sm-6">
+                            <label class="text-success col-form-label col-form-label-sm">Category<span class="text-danger">*</span></label>
+                            <InputSelect @bind-Value="Book.CategoryId" class="form-control form-control-sm" required>
+                                <option value="">Select Category</option>
+                                @foreach (var category in _categories)
+                                {
+                                    <option value="@category.Id">@category.Name</option>
+                                }
+                            </InputSelect>
+                            <ValidationMessage For="@(() => Book.CategoryId)" />
+                        </div>
+                        
+                        <div class="col-sm-3">
+                            <label class=" text-success col-form-label col-form-label-sm">Language</label>
+                            <InputText @bind-Value="Book.Language" class="form-control form-control-sm" placeholder="Enter Language" />
+                        </div>
+                        <div class="col-sm-3">
+                            <label class=" text-success col-form-label col-form-label-sm">Status</label>
+                            <InputSelect @bind-Value="Book.Status" class="form-control form-control-sm">
+                                @foreach (var status in Enum.GetValues(typeof(BookStatus)).Cast<BookStatus>())
+                                {
+                                    <option value="@status">@status.ToString()</option>
+                                }
+                            </InputSelect>
+                        </div>
+
+                    </div>
+
+                    <!-- 4th row: ISBN (3 col), Language (1 col), Status (1 col) -->
+                    <div class="form-group row">
+                        <div class="col-sm-6">
+                            <label class="text-success col-form-label col-form-label-sm">ISBN<span class="text-danger">*</span></label>
+                            <InputText @bind-Value="Book.ISBN" disabled class="form-control form-control-sm" placeholder="Enter ISBN" required />
+                            <ValidationMessage For="@(() => Book.ISBN)" />
+                        </div>
+
+                        <div class="col-sm-4">
+                            <label class="text-success col-form-label col-form-label-sm">Publisher</label>
+                            <InputText @bind-Value="Book.Publisher" class="form-control form-control-sm" placeholder="Enter Publisher" />
+                        </div>
+                        <div class="col-sm-2">
+                            <label class="text-success col-form-label col-form-label-sm">Published Date</label>
+                            <InputDate @bind-Value="Book.PublishedDate" class="form-control form-control-sm" />
+                        </div>
+                        
+                    </div>
+
+                    <!-- 5th row: Description (3 col), Image URL (2 col) -->
+
+
+                    <div class="form-group row">
+                        <div class="col-sm-6">
+                            <label class="text-success col-form-label col-form-label-sm">Description</label>
+                            <InputTextArea @bind-Value="Book.Description" class="form-control form-control-sm" placeholder="Enter Description" />
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-start">
+                                <div class="flex-grow-1">
+                                    <label for="customFile" class="text-success col-form-label col-form-label-sm">Upload Image</label>
+                                    <InputFile id="customFile" OnChange="LoadFiles" class="form-control form-control-sm" accept="image/x-png,image/jpeg" />
+                                </div>
+                                @if (Book.ImageUrl != null)
+                                {
+                                    <div class="ms-3">
+                                        <img src="@Book.ImageUrl" alt="Uploaded Image" class="img-thumbnail" style="max-width: 100px;">
+                                        <div class="pt-2">
+                                            <button type="button" class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-trash"></i> Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="card-footer pb-2">
+                    <div class="text-right">
+                        <button type="submit" class="col-sm-2 mr-2 btn btn-outline-success btn-sm" disabled="@IsProcessing">@(Book.Id > 0 ? "Update" : "Create")</button>
+                        <button type="button" class="col-sm-2 btn btn-outline-dark btn-sm" @onclick="GoBack">Back</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private string? _directoryPath { get; set; }
+    private bool _isImageLoading { get; set; } = false;
+
+
+    private Book BookTemp { get; set; } = new Book();
+    private IEnumerable<Category> _categories = new List<Category>();
+
+    [SupplyParameterFromForm]
+    private Book Book { get; set; } = new Book();
+
+    private bool IsProcessing { get; set; } = true;
+
+
+    protected override Task OnInitializedAsync()
+    {
+        _directoryPath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "product");
+        return base.OnInitializedAsync();
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadDetails();
+            IsProcessing = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadDetails()
+    {
+        if (Id > 0)
+        {
+            Book = await _bookService.GetByIdAsync(u => u.Id == Id);
+        }
+        _categories = await _categoryService.GetAllAsync();
+
+        BookTemp.Title = Book.Title;
+        BookTemp.Author = Book.Author;
+        BookTemp.ISBN = Book.ISBN;
+        BookTemp.Description = Book.Description;
+        BookTemp.ImageUrl = Book.ImageUrl;
+        BookTemp.Price = Book.Price;
+        BookTemp.Status = Book.Status;
+        BookTemp.SpecialTag = Book.SpecialTag;
+        BookTemp.Publisher = Book.Publisher;
+        BookTemp.PublishedDate = Book.PublishedDate;
+        BookTemp.Category = Book.Category;
+        BookTemp.CategoryId = Book.CategoryId;
+        BookTemp.Language = Book.Language;
+        BookTemp.CreatedAt = Book.CreatedAt;
+        BookTemp.UpdatedAt = Book.UpdatedAt;
+        BookTemp.Pages = Book.Pages;
+        BookTemp.Discount = Book.Discount;
+    }
+
+    private async Task UpsertBook()
+    {
+        IsProcessing = true;
+        var result = await _bookService.IsExistsAsync(u => u.Title.ToLower() == Book.Title.ToLower());
+
+        if (Book.Id == 0)
+        {
+            //Create
+            if (result)
+            {
+                await _JS.ToastrError("Book Allready Exists!");
+            }
+            else
+            {
+                await _bookService.AddAsync(Book);
+                await _JS.ToastrSuccess("Book Created Successfully");
+            }
+        }
+        else
+        {
+            //Update
+
+            result = await _bookService.IsExistsAsync(u => u.Title.ToLower() == Book.Title.ToLower() && u.Id != Book.Id );
+
+            if (result)
+            {
+                // Restoring Previous Book Name.
+                Book.Title = BookTemp.Title;
+                Book.Author = BookTemp.Author;
+                Book.ISBN = BookTemp.ISBN;
+                Book.Description = BookTemp.Description;
+                Book.ImageUrl = BookTemp.ImageUrl;
+                Book.Price = BookTemp.Price;
+                Book.Status = BookTemp.Status;
+                Book.SpecialTag = BookTemp.SpecialTag;
+                Book.Publisher = BookTemp.Publisher;
+                Book.PublishedDate = BookTemp.PublishedDate;
+                Book.Category = BookTemp.Category;
+                Book.CategoryId = BookTemp.CategoryId;
+                Book.Language = BookTemp.Language;
+                Book.CreatedAt = BookTemp.CreatedAt;
+                Book.UpdatedAt = BookTemp.UpdatedAt;
+                Book.Pages = BookTemp.Pages;
+                Book.Discount = BookTemp.Discount; 
+                await _JS.ToastrError("Book Allready Exists!");
+            }
+            else
+            {
+                await _bookService.UpdateAsync(Book);
+                await _JS.ToastrSuccess("Book Updated Successfully");
+            }
+        }
+        IsProcessing = false;
+
+        _navigationManager.NavigateTo("book");
+
+    }
+    private async Task LoadFiles(InputFileChangeEventArgs e)
+    {
+        IsProcessing = true;
+        var file = e.File;
+        FileInfo fileInfo = new(file.Name);
+        var newFileName = $"{Guid.NewGuid()}.{fileInfo.Extension}";
+        if (!Directory.Exists(_directoryPath))
+        {
+            Directory.CreateDirectory(_directoryPath);
+        }
+        var path = Path.Combine(_directoryPath, newFileName);
+
+        await using FileStream fileStream = new(path, FileMode.Create);
+        await file.OpenReadStream(file.Size).CopyToAsync(fileStream);
+        Book.ImageUrl = $"/images/product/{newFileName}";
+
+        IsProcessing = false;
+    }
+
+    private async Task GoBack()
+    {
+        _navigationManager.NavigateTo("book");
+    }
+}
